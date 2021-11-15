@@ -7,7 +7,6 @@ var app = http.createServer(function(request, response){
   var queryData = url.parse(_url, true).query;
   console.log(queryData.id);
   if(_url == '/'){
-    _url = '/?id=Index';
   }
   if(_url == '/favicon.ico'){
     return response.writeHead(404);
@@ -23,7 +22,7 @@ var app = http.createServer(function(request, response){
     </head>
 
     <body> <!-- 문단의 내용을 알려주는 곳에 body태그로 적용 -->
-      <a href="/">
+      <a href="/?id=Index">
         <img src="/mainLogo.png">
       </a>
       <h1>About Me</h1>
