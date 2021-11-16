@@ -2,18 +2,15 @@ var http = require('http');
 var fs = require('fs');
 var url = require('url');
 
-var app = http.createServer(function(request, response){
+var app = http.createServer(function(request, response) {
   var _url = request.url;
   var queryData = url.parse(_url, true).query;
-  console.log(queryData.id);
-  if(_url == '/'){
-  }
-  if(_url == '/favicon.ico'){
-    return response.writeHead(404);
-  }
-  response.writeHead(200);
-  fs.readFile(`data/${queryData.id}`, 'utf8', function(err,description){
-    var template = `
+  var pathname = url.parse(_url, true).pathname;
+  console.log(pathname);
+
+  if (pathname === '/') {
+    fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
+      var template = `
     <!doctype html> <!-- 아래 파일이 html이다 라는 것을 알려주는 코드-->
     <html> <!-- html에는 head, body태그로 나뉘고, html이라는 상위 태그로 묶임 -->
     <head> <!-- 제목부분을 알려주는 곳에 head태그로 적용 -->
@@ -58,8 +55,13 @@ var app = http.createServer(function(request, response){
     </body>
     </html>
     `;
-    response.end(template);
-  })
+      response.writeHead(200);
+      response.end(template);
+    });
+  } else {
+    response.writeHead(404);
+    response.end('Not found');
+  }
 
 });
 app.listen(3000);
