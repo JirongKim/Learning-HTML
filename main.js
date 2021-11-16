@@ -6,7 +6,13 @@ var app = http.createServer(function(request, response) {
   var _url = request.url;
   var queryData = url.parse(_url, true).query;
   var pathname = url.parse(_url, true).pathname;
-  console.log(pathname);
+  var path = url.parse(_url, true).path;
+
+  console.log(queryData);
+
+  if (path === '/') {
+    queryData.id = 'Index';
+  }
 
   if (pathname === '/') {
     fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
