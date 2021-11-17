@@ -1,6 +1,7 @@
 var http = require('http');
 var fs = require('fs');
 var url = require('url');
+var qs = require('querystring');
 
 var app = http.createServer(function(request, response) {
 
@@ -9,7 +10,7 @@ var app = http.createServer(function(request, response) {
   var pathname = url.parse(_url, true).pathname;
   var path = url.parse(_url, true).path;
 
-  console.log(queryData);
+  console.log(pathname);
 
   if (path === '/') {
     queryData.id = 'Index';
@@ -26,7 +27,24 @@ var app = http.createServer(function(request, response) {
         response.end(template);
       });
     });
-  } else {
+  }
+  else if(pathname === '/create_preocess'){
+    var body = '';
+
+    request.on('data', function(data){
+      body += data;
+    });
+    request.on('end', function(){
+      var post = qs.parse(body);
+      var title = post.title;
+      var description = post.description;
+      fs.writeFile(`data/${title}`, description, 'utf8', function(err){
+        response.writeHead(302, {Location: `/?id=${title}`});
+        response.end();
+      });
+    });
+  }
+  else {
     response.writeHead(404);
     response.end('Not found');
   }
@@ -39,7 +57,6 @@ function templateList(filelist){
   var list = '<ul>';
   var i = 0;
   while (i < filelist.length) {
-    console.log(list);
     list = list + `<li><a href="/?id=${filelist[i]}">${filelist[i]}</a></li>`;
     i = i + 1;
   }
@@ -62,7 +79,17 @@ function templateHTML(list, description){
     </a>
     <h1>About Me</h1>
     ${list}
+    <form action="http://localhost:3000/create_preocess" method = "post">
+      <p><input type="text" name="title" placeholder="title"></p>
+      <p>
+        <textarea name="description" placeholder="description"></textarea>
+      </p>
+      <p>
+        <input type="submit">
+      </p>
+    </form>
 
+    <a href="/create">create</a>
     <p>${description}</p>
 
   </body>
