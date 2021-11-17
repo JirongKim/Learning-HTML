@@ -16,13 +16,13 @@ var app = http.createServer(function(request, response) {
     queryData.id = 'Index';
   }
 
+  var control = templateControl(path, pathname, queryData);
   if (pathname === '/') {
-
     fs.readdir('./data', function(error, filelist) {
       var list = templateList(filelist);
 
       fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description){
-        var template = templateHTML(list, description);
+        var template = templateHTML(list, description, control);
         response.writeHead(200);
         response.end(template);
       });
@@ -55,7 +55,7 @@ app.listen(3000);
 // function
 function templateList(filelist){
   var list = '<ul>';
-  var i = 0;
+  var i = 1;
   while (i < filelist.length) {
     list = list + `<li><a href="/?id=${filelist[i]}">${filelist[i]}</a></li>`;
     i = i + 1;
@@ -64,7 +64,30 @@ function templateList(filelist){
   return list;
 }
 
-function templateHTML(list, description){
+function templateControl(path, pathname, queryData){
+  if(queryData.id === 'Index'){
+    return '';
+  }
+  var _create = '';
+  var _update = '';
+  var _delete = '';
+  return `
+  <form action="http://localhost:3000/create_preocess" method = "post">
+    <p><input type="text" name="title" placeholder="title"></p>
+    <p>
+      <textarea name="description" placeholder="description"></textarea>
+    </p>
+    <p>
+      <input type="submit">
+    </p>
+  </form>
+
+  <a href="/create">create</a>
+  <a href="/create">update</a>
+  `;
+}
+
+function templateHTML(list, description, control){
   return `
   <!doctype html> <!-- 아래 파일이 html이다 라는 것을 알려주는 코드-->
   <html> <!-- html에는 head, body태그로 나뉘고, html이라는 상위 태그로 묶임 -->
@@ -79,17 +102,7 @@ function templateHTML(list, description){
     </a>
     <h1>About Me</h1>
     ${list}
-    <form action="http://localhost:3000/create_preocess" method = "post">
-      <p><input type="text" name="title" placeholder="title"></p>
-      <p>
-        <textarea name="description" placeholder="description"></textarea>
-      </p>
-      <p>
-        <input type="submit">
-      </p>
-    </form>
-
-    <a href="/create">create</a>
+    ${control}
     <p>${description}</p>
 
   </body>
