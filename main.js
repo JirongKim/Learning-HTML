@@ -4,19 +4,19 @@ var url = require('url');
 var qs = require('querystring');
 
 var app = http.createServer(function(request, response) {
-
   var _url = request.url;
   var queryData = url.parse(_url, true).query;
   var pathname = url.parse(_url, true).pathname;
   var path = url.parse(_url, true).path;
 
   console.log(pathname);
+  console.log(queryData);
 
   if (path === '/') {
     queryData.id = 'Index';
   }
 
-  var control = templateControl(path, pathname, queryData);
+  var control = templateControl(queryData);
   if (pathname === '/') {
     fs.readdir('./data', function(error, filelist) {
       var list = templateList(filelist);
@@ -26,6 +26,26 @@ var app = http.createServer(function(request, response) {
         response.writeHead(200);
         response.end(template);
       });
+    });
+  }
+  else if(pathname === '/create'){
+    fs.readdir('./data', function(error, filelist) {
+      var list = templateList(filelist);
+
+      var template = templateHTML(list, '', control);
+      template += `
+      <form action="/create_preocess" method = "post">
+        <p><input type="text" name="title" placeholder="title"></p>
+        <p>
+          <textarea name="description" placeholder="description"></textarea>
+        </p>
+        <p>
+          <input type="submit">
+        </p>
+      </form>
+      `
+      response.writeHead(200);
+      response.end(template);
     });
   }
   else if(pathname === '/create_preocess'){
@@ -41,6 +61,30 @@ var app = http.createServer(function(request, response) {
       fs.writeFile(`data/${title}`, description, 'utf8', function(err){
         response.writeHead(302, {Location: `/?id=${title}`});
         response.end();
+      });
+    });
+  }
+  else if(pathname === '/update'){
+    var title = queryData.id;
+
+    fs.readdir('./data', function(error, filelist) {
+      var list = templateList(filelist);
+
+      fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description){
+        var template = templateHTML(list, '', control);
+        template += `
+        <form action="/update_preocess" method = "post">
+          <p><input type="text" name="title" placeholder="title" value="${title}"></p>
+          <p>
+            <textarea name="description" placeholder="description">${description}</textarea>
+          </p>
+          <p>
+            <input type="submit">
+          </p>
+        </form>
+        `
+        response.writeHead(200);
+        response.end(template);
       });
     });
   }
@@ -64,27 +108,15 @@ function templateList(filelist){
   return list;
 }
 
-function templateControl(path, pathname, queryData){
+function templateControl(queryData){
   if(queryData.id === 'Index'){
     return '';
   }
-  var _create = '';
-  var _update = '';
-  var _delete = '';
-  return `
-  <form action="http://localhost:3000/create_preocess" method = "post">
-    <p><input type="text" name="title" placeholder="title"></p>
-    <p>
-      <textarea name="description" placeholder="description"></textarea>
-    </p>
-    <p>
-      <input type="submit">
-    </p>
-  </form>
+  var _create =`<a href="/create">create</a>`;
+  var _update = `<a href="/update?id=${queryData.id}">update</a>`;
+  var _delete = `<a href="/delete?id=${queryData.id}">delete</a>`;
 
-  <a href="/create">create</a>
-  <a href="/create">update</a>
-  `;
+  return `${_create} ${_update} ${_delete}`;
 }
 
 function templateHTML(list, description, control){
@@ -101,8 +133,8 @@ function templateHTML(list, description, control){
       <img src="/mainLogo.png">
     </a>
     <h1>About Me</h1>
-    ${list}
-    ${control}
+    <p>${list}</p>
+    <p>${control}</p>
     <p>${description}</p>
 
   </body>
