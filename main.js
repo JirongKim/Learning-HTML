@@ -63,7 +63,7 @@ var app = http.createServer(function(request, response) {
       var description = post.description;
       var filteredTitle = path.parse(title).base;
       fs.writeFile(`data/${filteredTitle}`, description, 'utf8', function(err){
-        response.writeHead(302, {Location: `/?id=${title}`});
+        response.writeHead(302, {Location: `/?id=${filteredTitle}`});
         response.end();
       });
     });
@@ -110,7 +110,7 @@ var app = http.createServer(function(request, response) {
       var filteredTitle = path.parse(title).base;
       fs.rename(`data/${filteredId}`, `data/${filteredTitle}`, function(error){
         fs.writeFile(`data/${filteredTitle}`, description, 'utf8', function(err){
-          response.writeHead(302, {Location: `/?id=${title}`});
+          response.writeHead(302, {Location: `/?id=${filteredTitle}`});
           response.end();
         });
       })
