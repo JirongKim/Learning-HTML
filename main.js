@@ -109,6 +109,21 @@ var app = http.createServer(function(request, response) {
       })
     });
   }
+  else if(pathname === '/delete_process'){
+    var body = '';
+
+    request.on('data', function(data){
+      body += data;
+    });
+    request.on('end', function(){
+      var post = qs.parse(body);
+      var id = post.id;
+      fs.unlink(`data/${id}`, function(error){
+        response.writeHead(302, {Location: `/`});
+        response.end();
+      })
+    });
+  }
   else {
     response.writeHead(404);
     response.end('Not found');
@@ -135,7 +150,12 @@ function templateControl(queryData){
   }
   var _create =`<a href="/create">create</a>`;
   var _update = `<a href="/update?id=${queryData.id}">update</a>`;
-  var _delete = `<a href="/delete?id=${queryData.id}">delete</a>`;
+  var _delete = `
+  <form action="delete_process" method="post">
+    <input type="hidden" name="id" value="${queryData.id}">
+    <input type="submit" value="delete">
+  </form>
+  `;
 
   return `${_create} ${_update} ${_delete}`;
 }
