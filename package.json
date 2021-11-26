@@ -1,0 +1,22 @@
+{
+  "name": "portfolio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://JirongKim@github.com/JirongKim/PortFolio.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JirongKim/PortFolio/issues"
+  },
+  "homepage": "https://github.com/JirongKim/PortFolio#readme",
+  "dependencies": {
+    "sanitize-html": "^2.6.0"
+  }
+}

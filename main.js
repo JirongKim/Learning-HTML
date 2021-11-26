@@ -4,6 +4,7 @@ var url = require('url');
 var qs = require('querystring');
 var path = require('path');
 var OBJ_template = require('./TEMPLATE.js');
+const sanitizeHtml = require('sanitize-html');
 
 var app = http.createServer(function(request, response) {
   var _url = request.url;
@@ -24,14 +25,20 @@ var app = http.createServer(function(request, response) {
       var list = OBJ_template.list(filelist);
 
       var filteredId = path.parse(queryData.id).base;
-      fs.readFile(`data/${filteredId}`, 'utf8', function(err, description){
-        var template = OBJ_template.HTML(list, description, control);
+      fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
+        var template;
+        if(queryData.id != 'Index'){
+          var sanitizedDescription = sanitizeHtml(description);
+          template = OBJ_template.HTML(list, sanitizedDescription, control);
+        }
+        else {
+          template = OBJ_template.HTML(list, description, control);
+        }
         response.writeHead(200);
         response.end(template);
       });
     });
-  }
-  else if(pathname === '/create'){
+  } else if (pathname === '/create') {
     fs.readdir('./data', function(error, filelist) {
       var list = OBJ_template.list(filelist);
 
@@ -50,32 +57,32 @@ var app = http.createServer(function(request, response) {
       response.writeHead(200);
       response.end(template);
     });
-  }
-  else if(pathname === '/create_preocess'){
+  } else if (pathname === '/create_preocess') {
     var body = '';
 
-    request.on('data', function(data){
+    request.on('data', function(data) {
       body += data;
     });
-    request.on('end', function(){
+    request.on('end', function() {
       var post = qs.parse(body);
       var title = post.title;
       var description = post.description;
       var filteredTitle = path.parse(title).base;
-      fs.writeFile(`data/${filteredTitle}`, description, 'utf8', function(err){
-        response.writeHead(302, {Location: `/?id=${filteredTitle}`});
+      fs.writeFile(`data/${filteredTitle}`, description, 'utf8', function(err) {
+        response.writeHead(302, {
+          Location: `/?id=${filteredTitle}`
+        });
         response.end();
       });
     });
-  }
-  else if(pathname === '/update'){
+  } else if (pathname === '/update') {
     var title = queryData.id;
 
     fs.readdir('./data', function(error, filelist) {
       var list = OBJ_template.list(filelist);
 
       var filteredId = path.parse(queryData.id).base;
-      fs.readFile(`data/${filteredId}`, 'utf8', function(err, description){
+      fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
         var template = OBJ_template.HTML(list, '', control);
         template += `
         <form action="/update_preocess" method = "post">
@@ -93,14 +100,13 @@ var app = http.createServer(function(request, response) {
         response.end(template);
       });
     });
-  }
-  else if(pathname === '/update_preocess'){
+  } else if (pathname === '/update_preocess') {
     var body = '';
 
-    request.on('data', function(data){
+    request.on('data', function(data) {
       body += data;
     });
-    request.on('end', function(){
+    request.on('end', function() {
       var post = qs.parse(body);
       var id = post.id;
       var title = post.title;
@@ -108,31 +114,33 @@ var app = http.createServer(function(request, response) {
       console.log(post);
       var filteredId = path.parse(id).base;
       var filteredTitle = path.parse(title).base;
-      fs.rename(`data/${filteredId}`, `data/${filteredTitle}`, function(error){
-        fs.writeFile(`data/${filteredTitle}`, description, 'utf8', function(err){
-          response.writeHead(302, {Location: `/?id=${filteredTitle}`});
+      fs.rename(`data/${filteredId}`, `data/${filteredTitle}`, function(error) {
+        fs.writeFile(`data/${filteredTitle}`, description, 'utf8', function(err) {
+          response.writeHead(302, {
+            Location: `/?id=${filteredTitle}`
+          });
           response.end();
         });
       })
     });
-  }
-  else if(pathname === '/delete_process'){
+  } else if (pathname === '/delete_process') {
     var body = '';
 
-    request.on('data', function(data){
+    request.on('data', function(data) {
       body += data;
     });
-    request.on('end', function(){
+    request.on('end', function() {
       var post = qs.parse(body);
       var id = post.id;
       var filteredId = path.parse(id).base;
-      fs.unlink(`data/${filteredId}`, function(error){
-        response.writeHead(302, {Location: `/`});
+      fs.unlink(`data/${filteredId}`, function(error) {
+        response.writeHead(302, {
+          Location: `/`
+        });
         response.end();
       })
     });
-  }
-  else {
+  } else {
     response.writeHead(404);
     response.end('Not found');
   }
