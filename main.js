@@ -2,18 +2,19 @@ var http = require('http');
 var fs = require('fs');
 var url = require('url');
 var qs = require('querystring');
+var path = require('path');
 var OBJ_template = require('./TEMPLATE.js');
 
 var app = http.createServer(function(request, response) {
   var _url = request.url;
   var queryData = url.parse(_url, true).query;
   var pathname = url.parse(_url, true).pathname;
-  var path = url.parse(_url, true).path;
+  var filePath = url.parse(_url, true).path;
 
   console.log(pathname);
   console.log(queryData);
 
-  if (path === '/') {
+  if (filePath === '/') {
     queryData.id = 'Index';
   }
 
@@ -22,7 +23,8 @@ var app = http.createServer(function(request, response) {
     fs.readdir('./data', function(error, filelist) {
       var list = OBJ_template.list(filelist);
 
-      fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description){
+      var filteredId = path.parse(queryData.id).base;
+      fs.readFile(`data/${filteredId}`, 'utf8', function(err, description){
         var template = OBJ_template.HTML(list, description, control);
         response.writeHead(200);
         response.end(template);
@@ -59,7 +61,8 @@ var app = http.createServer(function(request, response) {
       var post = qs.parse(body);
       var title = post.title;
       var description = post.description;
-      fs.writeFile(`data/${title}`, description, 'utf8', function(err){
+      var filteredTitle = path.parse(title).base;
+      fs.writeFile(`data/${filteredTitle}`, description, 'utf8', function(err){
         response.writeHead(302, {Location: `/?id=${title}`});
         response.end();
       });
@@ -71,7 +74,8 @@ var app = http.createServer(function(request, response) {
     fs.readdir('./data', function(error, filelist) {
       var list = OBJ_template.list(filelist);
 
-      fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description){
+      var filteredId = path.parse(queryData.id).base;
+      fs.readFile(`data/${filteredId}`, 'utf8', function(err, description){
         var template = OBJ_template.HTML(list, '', control);
         template += `
         <form action="/update_preocess" method = "post">
@@ -102,8 +106,10 @@ var app = http.createServer(function(request, response) {
       var title = post.title;
       var description = post.description;
       console.log(post);
-      fs.rename(`data/${id}`, `data/${title}`, function(error){
-        fs.writeFile(`data/${title}`, description, 'utf8', function(err){
+      var filteredId = path.parse(id).base;
+      var filteredTitle = path.parse(title).base;
+      fs.rename(`data/${filteredId}`, `data/${filteredTitle}`, function(error){
+        fs.writeFile(`data/${filteredTitle}`, description, 'utf8', function(err){
           response.writeHead(302, {Location: `/?id=${title}`});
           response.end();
         });
@@ -119,7 +125,8 @@ var app = http.createServer(function(request, response) {
     request.on('end', function(){
       var post = qs.parse(body);
       var id = post.id;
-      fs.unlink(`data/${id}`, function(error){
+      var filteredId = path.parse(id).base;
+      fs.unlink(`data/${filteredId}`, function(error){
         response.writeHead(302, {Location: `/`});
         response.end();
       })
