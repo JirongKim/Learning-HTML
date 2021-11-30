@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/JirongKim/PortFolio#readme",
   "dependencies": {
+    "mysql": "^2.18.1",
     "sanitize-html": "^2.6.0"
   }
 }
