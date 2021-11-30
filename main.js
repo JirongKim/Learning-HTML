@@ -34,19 +34,15 @@ var app = http.createServer(function(request, response) {
         console.log(error);
       }
       db.query('SELECT * FROM INFO LEFT JOIN author ON INFO.author_id = author.id WHERE INFO.id=?',[queryData.id], function(error, result) {
-        console.log(`info : ${info}`);
         var list = OBJ_template.list(info);
-        var description = info[queryData.id - 1].description;
-        var template;
-        if (queryData.id != 'Index') {
-          var sanitizedDescription = sanitizeHtml(description);
-          template = OBJ_template.HTML(list, sanitizedDescription, control);
-        } else {
-          template = OBJ_template.HTML(list, description, control);
-        }
+        var description;
+        db.query(`SELECT * FROM INFO WHERE id = ${queryData.id}`, function(error, res_des){
+          description = res_des[0].description;
+        var template = OBJ_template.HTML(list, description, control);
         template+=`<p>by ${result[0].name}</p>`
         response.writeHead(200);
         response.end(template);
+        });
       });
     });
   } else if (pathname === '/create') {
