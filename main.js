@@ -34,29 +34,7 @@ var app = http.createServer(function(request, response) {
   } else if (pathname === '/create') {
     INFO.create(request, response);
   } else if (pathname === '/create_preocess') {
-    var body = '';
-
-    request.on('data', function(data) {
-      body += data;
-    });
-    request.on('end', function() {
-      var post = qs.parse(body);
-      console.log(`post.author = ${post.author}`);
-      db.query(`
-        INSERT INTO INFO (title, description, created, author_id)
-        VALUES(?, ?, NOW(), ?)`,
-        [post.title, post.description, post.author],
-        function(error, result) {
-          if (error) {
-            throw error;
-          }
-          response.writeHead(302, {
-            Location: `/?id=${result.insertId}`
-          });
-          response.end();
-        }
-      )
-    });
+    INFO.create_preocess(request, response);
   } else if (pathname === '/update') {
     db.query('SELECT * FROM INFO', function(error, info, fields) {
       if (error) {
