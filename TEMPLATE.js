@@ -9,7 +9,6 @@ var OBJ_template = {
     </head>
 
     <body> <!-- 문단의 내용을 알려주는 곳에 body태그로 적용 -->
-    <a href="/?id=Index">
     <img src="/mainLogo.png">
     </a>
     <h1>About Me</h1>
