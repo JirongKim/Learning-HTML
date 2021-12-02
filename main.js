@@ -32,37 +32,7 @@ var app = http.createServer(function(request, response) {
       }
     });
   } else if (pathname === '/create') {
-    db.query('SELECT * FROM INFO', function(error, info, fields) {
-      if (error) {
-        console.log(error);
-      }
-      var authorList = "";
-      db.query('SELECT * FROM author', function(error, authors) {
-        for (var i = 0; i < authors.length; i++) {
-          authorList += `<option value="${authors[i].id}">${authors[i].name}</option>`;
-        }
-        var list = OBJ_template.list(info);
-        var template = OBJ_template.HTML(list, '', '');
-        template += `
-        <form action="/create_preocess" method = "post">
-          <p><input type="text" name="title" placeholder="title"></p>
-          <p>
-            <textarea name="description" placeholder="description"></textarea>
-          </p>
-          <p>
-          <select name="author">
-            ${authorList}
-          </select>
-          </p>
-          <p>
-            <input type="submit">
-          </p>
-        </form>
-        `
-        response.writeHead(200);
-        response.end(template);
-      });
-    });
+    INFO.create(request, response);
   } else if (pathname === '/create_preocess') {
     var body = '';
 
