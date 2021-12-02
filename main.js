@@ -28,17 +28,7 @@ var app = http.createServer(function(request, response) {
         if (filePath === '/') {
           queryData.id = info[0].id;
         }
-        db.query('SELECT * FROM INFO LEFT JOIN author ON INFO.author_id = author.id WHERE INFO.id=?', [queryData.id], function(error, result) {
-          var list = OBJ_template.list(info);
-          var description;
-          db.query(`SELECT * FROM INFO WHERE id = ${queryData.id}`, function(error, res_des) {
-            description = res_des[0].description;
-            var template = OBJ_template.HTML(list, description, control);
-            template += `<p>by ${result[0].name}</p>`
-            response.writeHead(200);
-            response.end(template);
-          });
-        });
+        INFO.page(request, response, queryData, info, control);
       }
     });
   } else if (pathname === '/create') {
