@@ -13,21 +13,11 @@ var app = http.createServer(function(request, response) {
   var queryData = url.parse(_url, true).query;
   var pathname = url.parse(_url, true).pathname;
   var filePath = url.parse(_url, true).path;
-  
+
   var control = OBJ_template.control(queryData);
+
   if (pathname === '/') {
-    db.query('SELECT * FROM INFO', function(error, info, fields) {
-      if (error) {
-        console.log(error);
-      } else if (!info.length) {
-        INFO.home(request, response);
-      } else {
-        if (filePath === '/') {
-          queryData.id = info[0].id;
-        }
-        INFO.page(request, response, queryData, info, control);
-      }
-    });
+    INFO.main(request, response, filePath, queryData, control);
   } else if (pathname === '/create') {
     INFO.create(request, response);
   } else if (pathname === '/create_preocess') {
