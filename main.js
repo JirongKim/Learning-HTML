@@ -3,16 +3,9 @@ var fs = require('fs');
 var url = require('url');
 var qs = require('querystring');
 var path = require('path');
-var OBJ_template = require('./TEMPLATE.js');
-var sanitizeHtml = require('sanitize-html');
+var OBJ_template = require('./lib/TEMPLATE.js');
 var mysql = require('mysql');
-var db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'rlawlfnd',
-  database: 'PORTFOLIO',
-});
-db.connect();
+var db = require('./lib/db.js');
 
 var app = http.createServer(function(request, response) {
   var _url = request.url;
@@ -200,17 +193,16 @@ var app = http.createServer(function(request, response) {
       var post = qs.parse(body);
       db.query(`DELETE FROM INFO WHERE id = ${post.id}`, function(error, result) {
         db.query('SELECT * FROM INFO', function(error, info) {
-          if(!info.length){
+          if (!info.length) {
             response.writeHead(302, {
-            Location: `/`
-          });
+              Location: `/`
+            });
+          } else {
+            response.writeHead(302, {
+              Location: `/?id=${info[0].id}`
+            });
           }
-          else {
-            response.writeHead(302, {
-            Location: `/?id=${info[0].id}`
-          });
-        }
-        response.end();
+          response.end();
         });
       })
     });
