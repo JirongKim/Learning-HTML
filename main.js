@@ -13,10 +13,7 @@ var app = http.createServer(function(request, response) {
   var queryData = url.parse(_url, true).query;
   var pathname = url.parse(_url, true).pathname;
   var filePath = url.parse(_url, true).path;
-
-  console.log(pathname);
-  console.log(queryData);
-
+  
   var control = OBJ_template.control(queryData);
   if (pathname === '/') {
     db.query('SELECT * FROM INFO', function(error, info, fields) {
@@ -40,28 +37,7 @@ var app = http.createServer(function(request, response) {
   } else if (pathname === '/update_preocess') {
     INFO.update_preocess(request, response);
   } else if (pathname === '/delete_process') {
-    var body = '';
-
-    request.on('data', function(data) {
-      body += data;
-    });
-    request.on('end', function() {
-      var post = qs.parse(body);
-      db.query(`DELETE FROM INFO WHERE id = ${post.id}`, function(error, result) {
-        db.query('SELECT * FROM INFO', function(error, info) {
-          if (!info.length) {
-            response.writeHead(302, {
-              Location: `/`
-            });
-          } else {
-            response.writeHead(302, {
-              Location: `/?id=${info[0].id}`
-            });
-          }
-          response.end();
-        });
-      })
-    });
+    INFO.delete_process(request, response);
   } else {
     response.writeHead(404);
     response.end('Not found');
