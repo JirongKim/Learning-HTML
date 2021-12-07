@@ -18,6 +18,16 @@ var app = http.createServer(function(request, response) {
 
   if (pathname === '/') {
     INFO.main(request, response, filePath, queryData, control);
+  } else if (pathname === '/author') {
+    INFO.author(request, response);
+  } else if (pathname === '/author_create') {
+    INFO.author_create(request, response);
+  } else if (pathname === '/author_update') {
+    INFO.author_update(request, response, queryData);
+  } else if (pathname === '/author_update_process') {
+    INFO.author_update_process(request, response);
+  } else if (pathname === '/author_delete') {
+    INFO.author_delete(request, response);
   } else if (pathname === '/create') {
     INFO.create(request, response);
   } else if (pathname === '/create_preocess') {
